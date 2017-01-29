@@ -4,22 +4,18 @@
 *  @version 0.1
 */
 
-#ifndef _ARCAMERA_H_
-#define _ARCAMERA_H_
+#ifndef _BACKGROUNDCAMERA_H_
+#define _BACKGROUNDCAMERA_H_
 
-#include <iostream>
-#include <osgViewer/Viewer>
-#include <osgViewer/ViewerEventHandlers>
 #include <osg/PolygonMode>
 #include <osg/Texture2D>
-#include <osg/Shader>
-#include <osgGA/StateSetManipulator>
-
+#include <osg/Geode>
+#include <osg/Geometry>
 #include <opencv2/opencv.hpp>
 
-class ARCamera {
+class BackgroundCamera {
 	public:
-		ARCamera();
+		BackgroundCamera();
 		void update(cv::Mat frame);
 		osg::Geode* createCameraPlane(int textureWidth, int textureHeight);
 		osg::Camera* createCamera(int textureWidth, int textureHeight);

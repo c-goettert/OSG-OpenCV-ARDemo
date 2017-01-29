@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(osg_ar_demo)
 
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMake/")
-
-FIND_PACKAGE(OpenGL)
 FIND_PACKAGE(OpenCV REQUIRED)
-find_package(OpenSceneGraph REQUIRED COMPONENTS osgDB osgGA osgUtil osgViewer osgText)
+find_package(OpenSceneGraph REQUIRED COMPONENTS osgDB osgViewer)
 
 # Also add some useful compiler flag
 set(CMAKE_CXX_FLAGS
@@ -14,7 +11,8 @@ set(CMAKE_CXX_FLAGS
 
 set(SOURCE_FILES
   ${PROJECT_SOURCE_DIR}/main.cpp
-  ${PROJECT_SOURCE_DIR}/include/ARCamera.cpp
+  ${PROJECT_SOURCE_DIR}/include/BackgroundCamera.cpp
+  ${PROJECT_SOURCE_DIR}/include/VirtualCamera.cpp
 )
 
 include_directories(

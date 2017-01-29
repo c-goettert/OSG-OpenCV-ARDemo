@@ -4,15 +4,14 @@
 *  @version 0.1
 */
 
-#include "ARCamera.h"
+#include "BackgroundCamera.h"
 
-ARCamera::ARCamera() {
-
+BackgroundCamera::BackgroundCamera() {
 		// Create OSG Image from CV Mat
 		img = new osg::Image;
 }
 
-void ARCamera::update(cv::Mat frame)
+void BackgroundCamera::update(cv::Mat frame)
 {
 	img->setImage(frame.cols, frame.rows, 3,
 			GL_RGB, GL_BGR, GL_UNSIGNED_BYTE,
@@ -21,7 +20,7 @@ void ARCamera::update(cv::Mat frame)
 	img->dirty();
 }
 
-osg::Geode* ARCamera::createCameraPlane(int textureWidth, int textureHeight)
+osg::Geode* BackgroundCamera::createCameraPlane(int textureWidth, int textureHeight)
 {
 	// CREATE PLANE TO DRAW TEXTURE
 	osg::ref_ptr<osg::Geometry> quadGeometry = osg::createTexturedQuadGeometry(osg::Vec3(0.0f,0.0f,0.0f),
@@ -56,7 +55,7 @@ osg::Geode* ARCamera::createCameraPlane(int textureWidth, int textureHeight)
 	return quad.release();
 }
 
-osg::Camera* ARCamera::createCamera(int textureWidth,int textureHeight)
+osg::Camera* BackgroundCamera::createCamera(int textureWidth,int textureHeight)
 {
 	osg::ref_ptr<osg::Geode> quad = createCameraPlane(textureWidth, textureHeight);
 	//Bind texture to the quadGeometry, then use the following camera:
@@ -75,7 +74,7 @@ osg::Camera* ARCamera::createCamera(int textureWidth,int textureHeight)
 	// only clear the depth buffer
 	camera->setClearMask(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	//camera->setViewport( 0, 0, screenWidth, screenHeight );
-	camera->setRenderOrder( osg::Camera::POST_RENDER );
+	camera->setRenderOrder( osg::Camera::NESTED_RENDER );
 	camera->addChild(quad);
 	return camera;
 }

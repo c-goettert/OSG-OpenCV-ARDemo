@@ -7,17 +7,13 @@
 
 #include <iostream>
 #include <osgViewer/Viewer>
-#include <osgViewer/ViewerEventHandlers>
-#include <osg/PolygonMode>
-#include <osg/Texture2D>
-#include <osg/Shader>
-#include <osgGA/StateSetManipulator>
 #include <osgDB/ReadFile>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
 
-#include "ARCamera.h"
+#include "BackgroundCamera.h"
+#include "VirtualCamera.h"
 
 int main( int argc, char** argv )
 {
@@ -41,36 +37,47 @@ int main( int argc, char** argv )
 	// OSG STUFF
 	// Create viewer
 	osgViewer::Viewer viewer;
-	osg::ref_ptr<osg::Node> scene = osgDB::readNodeFile("dumptruck.osgt");
-	osg::ref_ptr<osg::Group> group = new osg::Group;
 	viewer.setUpViewInWindow(50,50,screenWidth,screenHeight);
-	ARCamera arCamera;
-	cv::Mat frame = cvLoadImage("../image2.jpg", 1);
-	// Update the Frame for the camera manually
-	arCamera.update(frame);
 
-	// First add Model to group
-	// group->addChild(scene.get());
-	// then ad HUD
-	osg::Camera* camera = arCamera.createCamera(textureWidth, textureHeight);
-  group->addChild(camera);
+	// Main Camera
+	osg::ref_ptr<osg::Camera>  camera = viewer.getCamera();
+	VirtualCamera* vCamera = new VirtualCamera(camera);
 
-  // set the scene to render
+	// Background-Camera (OpenCV Feed)
+ 	BackgroundCamera bgCamera;
+ 	osg::Camera* backgroundCamera = bgCamera.createCamera(textureWidth, textureHeight);
+
+	// Load Truck Model as Example Scene
+	osg::ref_ptr<osg::Node> scene = osgDB::readNodeFile("dumptruck.osgt");
+
+	// Create new group node
+	osg::ref_ptr<osg::Group> group = new osg::Group;
+	osg::Node* background = backgroundCamera;
+	osg::Node* foreground = scene.get();
+	background->getOrCreateStateSet()->setRenderBinDetails(1,"RenderBin");
+	foreground->getOrCreateStateSet()->setRenderBinDetails(2,"RenderBin");
+	group->addChild(background);
+	group->addChild(foreground);
+	background->getOrCreateStateSet()->setMode(GL_DEPTH_TEST,osg::StateAttribute::OFF);
+	foreground->getOrCreateStateSet()->setMode(GL_DEPTH_TEST,osg::StateAttribute::ON);
+
+  // Add the groud to the viewer
   viewer.setSceneData(group.get());
-	// Start Viewer
+
+	double angle( 0. );
 	while (!viewer.done())
 	{
 		// Refresh Background Image
 		cv::Mat frame;
 		cap >> frame;
-		arCamera.update(frame);
-		// osg::Matrix rot;
-		// rot.makeRotate( angle, osg::Vec3( 1., 0., 0. ) );
-		// angle += 0.01;
-		// // Set the view matrix (the concatenation of the rotation and
-		// // translation matrices).
-		// viewer.getCamera()->setViewMatrix( rot * trans );
-		// // Draw the next frame.
+		bgCamera.update(frame);
+		angle -= 1;
+		// Update Virtual Camera (these Coordinates should be determined by some AR-Framework/Functionality)
+		// They are just updated for demonstration purposes..
+		// Roll, Pitch, Heading
+		vCamera->updateRotation(0,angle,0);
+		vCamera->updateTranslation(6,0,-60);
+		// osg::notify(osg::WARN)<<"Angle: "<<  angle<<std::endl;
 		viewer.frame();
 	}
 	return 0;
