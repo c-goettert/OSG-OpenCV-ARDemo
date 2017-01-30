@@ -12,8 +12,7 @@
 class VirtualCamera {
 	public:
 		VirtualCamera(osg::ref_ptr<osg::Camera> cam);
-		void updateTranslation(double x, double y, double z);
-		void updateRotation(double x, double y, double z);
+		void updatePosition(double r, double p, double h, double x, double y, double z);
 
 	protected:
 		double angle;

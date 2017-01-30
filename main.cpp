@@ -64,20 +64,20 @@ int main( int argc, char** argv )
   // Add the groud to the viewer
   viewer.setSceneData(group.get());
 
-	double angle( 0. );
+	double angleRoll( 0. );
 	while (!viewer.done())
 	{
 		// Refresh Background Image
 		cv::Mat frame;
 		cap >> frame;
 		bgCamera.update(frame);
-		angle -= 1;
+
+		angleRoll += 0.5;
 		// Update Virtual Camera (these Coordinates should be determined by some AR-Framework/Functionality)
 		// They are just updated for demonstration purposes..
-		// Roll, Pitch, Heading
-		vCamera->updateRotation(0,angle,0);
-		vCamera->updateTranslation(6,0,-60);
-		// osg::notify(osg::WARN)<<"Angle: "<<  angle<<std::endl;
+		// Position Parameters: Roll, Pitch, Heading, X, Y, Z
+		vCamera->updatePosition(angleRoll,0,0,  0, -100, 0);
+		//osg::notify(osg::WARN)<<"Angle: "<<  angleRoll <<std::endl;
 		viewer.frame();
 	}
 	return 0;
