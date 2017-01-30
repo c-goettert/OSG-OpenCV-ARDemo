@@ -8,6 +8,7 @@
 #include <iostream>
 #include <osgViewer/Viewer>
 #include <osgDB/ReadFile>
+#include <osg/PositionAttitudeTransform>
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
@@ -18,6 +19,7 @@
 int main( int argc, char** argv )
 {
 	 int screenWidth,screenHeight,textureWidth,textureHeight;
+
 	 screenWidth = 640;
 	 screenHeight = 480;
 
@@ -48,12 +50,22 @@ int main( int argc, char** argv )
  	osg::Camera* backgroundCamera = bgCamera.createCamera(textureWidth, textureHeight);
 
 	// Load Truck Model as Example Scene
-	osg::ref_ptr<osg::Node> scene = osgDB::readNodeFile("dumptruck.osgt");
+	osg::ref_ptr<osg::Node> truckModel = osgDB::readNodeFile("dumptruck.osgt");
+	osg::Group* truckGroup = new osg::Group();
+	// Position of truck
+	osg::PositionAttitudeTransform* position = new osg::PositionAttitudeTransform();
+
+	truckGroup->addChild(position);
+	position->addChild(truckModel);
+
+	// Set Position of Model
+	osg::Vec3 modelPosition(0,80,0);
+	position->setPosition( modelPosition );
 
 	// Create new group node
 	osg::ref_ptr<osg::Group> group = new osg::Group;
 	osg::Node* background = backgroundCamera;
-	osg::Node* foreground = scene.get();
+	osg::Node* foreground = truckGroup;
 	background->getOrCreateStateSet()->setRenderBinDetails(1,"RenderBin");
 	foreground->getOrCreateStateSet()->setRenderBinDetails(2,"RenderBin");
 	group->addChild(background);
@@ -76,7 +88,7 @@ int main( int argc, char** argv )
 		// Update Virtual Camera (these Coordinates should be determined by some AR-Framework/Functionality)
 		// They are just updated for demonstration purposes..
 		// Position Parameters: Roll, Pitch, Heading, X, Y, Z
-		vCamera->updatePosition(angleRoll,0,0,  0, -100, 0);
+		vCamera->updatePosition(angleRoll,0,0,  0, 0, 0);
 		//osg::notify(osg::WARN)<<"Angle: "<<  angleRoll <<std::endl;
 		viewer.frame();
 	}
